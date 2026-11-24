@@ -1,0 +1,102 @@
+﻿@model IEnumerable<Web_Food_App.Models.Order>
+
+@{
+    ViewBag.Title = "Đơn hàng của tôi";
+}
+
+<h4 class="font-weight-bold text-dark mb-4">
+    <i class="fas fa-receipt text-primary mr-2"></i> Đơn hàng của tôi
+</h4>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info text-center py-5 shadow-sm">
+        <i class="fas fa-box-open fa-3x mb-3 text-muted"></i>
+        <h5>Bạn chưa có đơn hàng nào.</h5>
+        <a href="@Url.Action("Products", "Home")" class="btn btn-primary mt-2">Đặt món ngay</a>
+    </div>
+}
+else
+{
+    foreach (var order in Model)
+    {
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white d-flex flex-wrap justify-content-between align-items-center">
+                <div>
+                    <strong>Đơn #@order.OrderId</strong>
+                    <span class="text-muted ml-2">@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</span>
+                </div>
+                <span class="badge @ViewHelper.StatusBadge(order.Status) py-2 px-3">@ViewHelper.StatusText(order.Status)</span>
+            </div>
+
+            <div class="card-body">
+                <div class="small text-muted mb-3">
+                    <div><i class="fas fa-map-marker-alt mr-2"></i>@order.ShippingAddress</div>
+                    <div><i class="fas fa-wallet mr-2"></i>@ViewHelper.PaymentText(order.PaymentMethod)</div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-sm mb-0">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Món</th>
+                                <th class="text-center" style="width: 90px;">SL</th>
+                                <th class="text-right" style="width: 130px;">Đơn giá</th>
+                                <th class="text-right" style="width: 140px;">Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var d in order.OrderDetails)
+                            {
+                                <tr>
+                                    <td>
+                                        <a href="@Url.Action("Details", "Food", new { id = d.FoodId })" class="text-dark">@d.Food.FoodName</a>
+                                        @if (!string.IsNullOrWhiteSpace(d.Note))
+                                        {
+                                            <div class="small text-muted">Ghi chú: @d.Note</div>
+                                        }
+                                    </td>
+                                    <td class="text-center">@d.Quantity</td>
+                                    <td class="text-right">@ViewHelper.Money(d.UnitPrice)</td>
+                                    <td class="text-right">@ViewHelper.Money(d.LineTotal)</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card-footer bg-white">
+                <div class="row align-items-center">
+                    <div class="col-md-6 mb-2 mb-md-0">
+                        @if (order.Status == "Pending")
+                        {
+                            using (Html.BeginForm("Cancel", "Order", FormMethod.Post))
+                            {
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@order.OrderId" />
+                                <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Hủy đơn #@(order.OrderId)?');">
+                                    <i class="fas fa-times mr-1"></i> Hủy đơn
+                                </button>
+                            }
+                        }
+                    </div>
+                    <div class="col-md-6 text-md-right small">
+                        <div class="text-muted">Tiền món: @ViewHelper.Money(order.TotalAmount)</div>
+                        <div class="text-muted">Phí giao hàng: @ViewHelper.Money(order.ShippingFee)</div>
+                        @if (order.DiscountAmount > 0)
+                        {
+                            <div class="text-success">
+                                Giảm giá @(order.Voucher != null ? "(" + order.Voucher.Code + ")" : ""): -@ViewHelper.Money(order.DiscountAmount)
+                            </div>
+                        }
+                        <div class="mt-1">
+                            <span class="text-muted">Thành tiền:</span>
+                            <span class="price h5 ml-1">@ViewHelper.Money(order.FinalAmount)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}

@@ -1,0 +1,67 @@
+﻿@model IEnumerable<Web_Food_App.Models.Voucher>
+
+@{
+    ViewBag.Title = "Quản trị - Voucher";
+    DateTime now = DateTime.Now;
+}
+
+@Html.Partial("_AdminNav")
+
+<div class="d-flex justify-content-end mb-3">
+    <a href="@Url.Action("CreateVoucher", "Admin")" class="btn btn-primary"><i class="fas fa-plus mr-1"></i> Thêm voucher</a>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="thead-light">
+                <tr>
+                    <th>Mã</th>
+                    <th class="text-center">Giảm</th>
+                    <th class="text-right">Tối đa</th>
+                    <th class="text-right">Đơn từ</th>
+                    <th>Hiệu lực</th>
+                    <th class="text-center">Còn lại</th>
+                    <th class="text-center">Trạng thái</th>
+                    <th style="width: 170px;"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="8" class="text-muted text-center py-4">Chưa có voucher nào.</td></tr>
+                }
+                @foreach (var v in Model)
+                {
+                    string label; string badge;
+                    if (!v.IsActive) { label = "Đã tắt"; badge = "badge-secondary"; }
+                    else if (v.EndDate < now) { label = "Hết hạn"; badge = "badge-secondary"; }
+                    else if (v.StartDate > now) { label = "Chưa bắt đầu"; badge = "badge-info"; }
+                    else if (v.Quantity <= 0) { label = "Hết lượt"; badge = "badge-warning"; }
+                    else { label = "Đang chạy"; badge = "badge-success"; }
+
+                    <tr>
+                        <td><code class="text-dark font-weight-bold">@v.Code</code></td>
+                        <td class="text-center">@(v.DiscountPercent)%</td>
+                        <td class="text-right">@ViewHelper.Money(v.MaxDiscount)</td>
+                        <td class="text-right">@ViewHelper.Money(v.MinOrderAmount)</td>
+                        <td class="small">@v.StartDate.ToString("dd/MM/yyyy") – @v.EndDate.ToString("dd/MM/yyyy")</td>
+                        <td class="text-center">@v.Quantity</td>
+                        <td class="text-center"><span class="badge @badge">@label</span></td>
+                        <td class="text-right">
+                            <a href="@Url.Action("EditVoucher", "Admin", new { id = v.VoucherId })" class="btn btn-sm btn-outline-secondary">Sửa</a>
+                            @using (Html.BeginForm("ToggleVoucher", "Admin", FormMethod.Post, new { @class = "d-inline" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@v.VoucherId" />
+                                <button type="submit" class="btn btn-sm @(v.IsActive ? "btn-outline-danger" : "btn-outline-success")">
+                                    @(v.IsActive ? "Tắt" : "Bật")
+                                </button>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

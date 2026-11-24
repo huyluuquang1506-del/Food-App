@@ -1,0 +1,114 @@
+﻿@model Web_Food_App.Models.CartViewModel
+
+@{
+    ViewBag.Title = "Giỏ hàng";
+}
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-white py-3 border-bottom">
+        <h4 class="font-weight-bold text-dark m-0">
+            <i class="fas fa-shopping-cart text-primary mr-2"></i> Giỏ hàng của bạn
+        </h4>
+    </div>
+
+    <div class="card-body">
+        @if (!Model.Lines.Any())
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-shopping-basket fa-4x text-muted mb-3"></i>
+                <h5>Giỏ hàng của bạn đang trống!</h5>
+                <p class="text-muted">Hãy chọn vài món ngon để thêm vào giỏ.</p>
+                <a href="@Url.Action("Products", "Home")" class="btn btn-primary mt-2">
+                    <i class="fas fa-arrow-left mr-1"></i> Xem thực đơn
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Món</th>
+                            <th class="text-center" style="width: 130px;">Đơn giá</th>
+                            <th class="text-center" style="width: 190px;">Số lượng</th>
+                            <th class="text-right" style="width: 140px;">Thành tiền</th>
+                            <th class="text-center" style="width: 60px;">Xóa</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var line in Model.Lines)
+                        {
+                            <tr>
+                                <td class="align-middle">
+                                    <div class="d-flex align-items-center">
+                                        <div class="food-thumb food-thumb-sm mr-3">
+                                            <i class="fas fa-utensils food-thumb-icon"></i>
+                                            @if (!string.IsNullOrEmpty(line.Food.ImageUrl))
+                                            {
+                                                < img src = "@Url.Content(ViewHelper.ImagePath(line.Food.ImageUrl))" alt = "" onerror = "this.remove()" />
+                                            }
+                                        </div>
+                                        <div>
+                                            <a href="@Url.Action("Details", "Food", new { id = line.Food.FoodId })" class="font-weight-bold text-dark">@line.Food.FoodName</a>
+                                            @if (line.OverStock)
+                                            {
+                                                <div class="small text-danger">Chỉ còn @line.Food.Stock phần, vui lòng giảm số lượng.</div>
+                                            }
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="align-middle text-center">@ViewHelper.Money(line.Food.Price)</td>
+                                <td class="align-middle text-center">
+                                    @using (Html.BeginForm("Update", "Cart", FormMethod.Post, new { @class = "form-inline justify-content-center" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@line.Food.FoodId" />
+                                        <input type="number" name="quantity" value="@line.Quantity" min="0" class="form-control form-control-sm qty-input mr-1" aria-label="Số lượng" />
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary" title="Cập nhật số lượng"><i class="fas fa-sync-alt"></i></button>
+                                    }
+                                </td>
+                                <td class="align-middle text-right price">@ViewHelper.Money(line.LineTotal)</td>
+                                <td class="align-middle text-center">
+                                    @using (Html.BeginForm("Remove", "Cart", FormMethod.Post))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@line.Food.FoodId" />
+                                        <button type="submit" class="btn btn-link text-danger p-0" title="Xóa khỏi giỏ"><i class="fas fa-trash-alt"></i></button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <hr class="my-4" />
+
+            <div class="row align-items-start">
+                <div class="col-md-6 mb-3 mb-md-0">
+                    <a href="@Url.Action("Products", "Home")" class="btn btn-outline-secondary mr-2">
+                        <i class="fas fa-arrow-left mr-1"></i> Tiếp tục chọn món
+                    </a>
+                    @using (Html.BeginForm("Clear", "Cart", FormMethod.Post, new { @class = "d-inline" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Xóa toàn bộ giỏ hàng?');">Xóa giỏ hàng</button>
+                    }
+                </div>
+                <div class="col-md-6 text-md-right">
+                    <div class="text-muted">Tiền món: <span class="text-dark">@ViewHelper.Money(Model.Subtotal)</span></div>
+                    <div class="text-muted">Phí giao hàng: <span class="text-dark">@ViewHelper.Money(Model.ShippingFee)</span></div>
+                    <div class="mb-3">
+                        <span class="text-muted">Tạm tính:</span>
+                        <span class="h4 price ml-2">@ViewHelper.Money(Model.EstimatedTotal)</span>
+                        <div class="small text-muted">Mã giảm giá được áp dụng ở bước đặt hàng.</div>
+                    </div>
+                    <a href="@Url.Action("Checkout", "Order")" class="btn btn-success btn-lg px-4 shadow-sm">
+                        <i class="fas fa-check mr-1"></i> Tiến hành đặt hàng
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+</div>

@@ -1,0 +1,184 @@
+﻿@{
+    bool showSidebar = ViewBag.ShowSidebar == true;
+    bool isAdmin = (Session["Role"] as string) == "Admin";
+    int cartCount = Web_Food_App.Helpers.CartHelper.Count(Session);
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - BeeFood</title>
+
+    @* CSS Bootstrap *@
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" />
+    @* Font Awesome Icons *@
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    @* CSS tùy biến riêng *@
+    <link href="~/Content/Site.css?v=20261123-logo1" rel="stylesheet" type="text/css" />
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+
+    @* 1. HEADER & NAVBAR *@
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top border-bottom py-3">
+            <div class="container">
+                <a class="navbar-brand font-weight-bold" href="@Url.Action("Index", "Home")">
+                    <img class="beefood-logo" src="@Url.Content("~/Content/img/beefood-logo.png?v=20261123-1")" alt="BeeFood" />
+                </a>
+
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Mở menu">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <form class="form-inline mx-auto my-2 my-lg-0 beefood-search" action="@Url.Action("Products", "Home")" method="get">
+                        <input class="form-control mr-2" type="search" name="keyword"
+                               placeholder="Tìm món ăn..." value="@Request.QueryString["keyword"]" aria-label="Tìm món ăn" />
+                        <button class="btn btn-outline-light" type="submit"><i class="fas fa-search"></i></button>
+                    </form>
+
+                    <ul class="navbar-nav ml-auto align-items-center">
+                        @* Giỏ hàng *@
+                        <li class="nav-item mr-3">
+                            <a class="nav-link btn btn-outline-light position-relative px-3 beefood-cart" href="@Url.Action("Index", "Cart")">
+                                <i class="fas fa-shopping-cart"></i> Giỏ hàng
+                                <span class="badge badge-pill badge-danger position-absolute" style="top: -5px; right: -5px;">@cartCount</span>
+                            </a>
+                        </li>
+
+                        @if (Session["UserId"] != null)
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown">
+                                    <i class="fas fa-user-circle"></i> @Session["FullName"]
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-right">
+                                    @if (isAdmin)
+                                    {
+                                        <a class="dropdown-item" href="@Url.Action("Dashboard", "Admin")"><i class="fas fa-chart-line mr-2"></i>Quản trị</a>
+                                        <div class="dropdown-divider"></div>
+                                    }
+                                    <a class="dropdown-item" href="@Url.Action("Profile", "Account")"><i class="fas fa-user mr-2"></i>Tài khoản của tôi</a>
+                                    <a class="dropdown-item" href="@Url.Action("History", "Order")"><i class="fas fa-receipt mr-2"></i>Đơn hàng của tôi</a>
+                                    <a class="dropdown-item" href="@Url.Action("Index", "Favorite")"><i class="fas fa-heart mr-2"></i>Món yêu thích</a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item text-danger" href="@Url.Action("Logout", "Account")">Đăng xuất</a>
+                                </div>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                    <a class="nav-link" href="@Url.Action("Login", "Account")">
+                                    <i class="fas fa-sign-in-alt"></i> Đăng nhập
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("Register", "Account")">
+                                    <i class="fas fa-user-plus"></i> Đăng ký
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    @* 2. PHẦN THÂN TRANG *@
+    <main class="container my-4 flex-grow-1">
+
+        @foreach (var key in new[] { "Success", "Error", "Warning" })
+        {
+            if (TempData[key] != null)
+            {
+                string cls = key == "Success" ? "alert-success" : (key == "Error" ? "alert-danger" : "alert-warning");
+                <div class="alert @cls alert-dismissible fade show" role="alert">
+                    @TempData[key]
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Đóng"><span aria-hidden="true">&times;</span></button>
+                </div>
+            }
+        }
+
+        @if (showSidebar)
+        {
+            <div class="row">
+                @* Cột trái: danh mục nhóm món *@
+                <aside class="col-lg-3 col-md-4 mb-4">
+                    @Html.Action("CategoryPartial", "Home")
+                </aside>
+
+                @* Cột phải: nội dung từng trang *@
+                <section class="col-lg-9 col-md-8">
+                    @RenderBody()
+                </section>
+            </div>
+        }
+        else
+        {
+            @RenderBody()
+        }
+    </main>
+
+    @* 3. FOOTER *@
+    <footer class="beefood-footer bg-dark text-white mt-auto">
+        <div class="container pt-5 pb-3">
+            <div class="row">
+                <div class="col-12 col-sm-6 col-md-3 mb-4">
+                    <h5 class="mb-3">Thông tin liên hệ</h5>
+                    <p class="text-white-50 small">Cần hỗ trợ về tài khoản hoặc đơn hàng? Liên hệ với BeeFood.</p>
+                    <ul class="list-unstyled small mb-0">
+                        <li class="footer-contact-item"><i class="fas fa-phone-alt"></i><a class="footer-link" href="tel:+84123456789">+84 123 456 789</a></li>
+                        <li class="footer-contact-item"><i class="fas fa-envelope"></i><a class="footer-link" href="mailto:hello@beefood.vn">hello@beefood.vn</a></li>
+                        <li class="footer-contact-item"><i class="fas fa-map-marker-alt"></i><span>TP. Hồ Chí Minh</span></li>
+                    </ul>
+                </div>
+
+                <div class="col-12 col-sm-6 col-md-3 mb-4">
+                    <h5 class="mb-3">Liên kết nhanh</h5>
+                    <ul class="list-unstyled small mb-0">
+                        <li class="mb-2"><a class="footer-link" href="@Url.Action("Index", "Home")">Trang chủ</a></li>
+                        <li class="mb-2"><a class="footer-link" href="@Url.Action("Products", "Home")">Thực đơn</a></li>
+                        <li class="mb-2"><a class="footer-link" href="@Url.Action("Index", "Cart")">Giỏ hàng</a></li>
+                        <li><a class="footer-link" href="@Url.Action("History", "Order")">Đơn hàng của tôi</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-12 col-sm-6 col-md-3 mb-4">
+                    <h5 class="mb-3">Tài khoản BeeFood</h5>
+                    <ul class="list-unstyled small mb-0">
+                        @if (Session["UserId"] != null)
+                        {
+                            <li class="mb-2"><a class="footer-link" href="@Url.Action("Profile", "Account")"><i class="fas fa-user mr-2"></i>Tài khoản của tôi</a></li>
+                            <li><a class="footer-link" href="@Url.Action("Index", "Favorite")"><i class="fas fa-heart mr-2"></i>Món yêu thích</a></li>
+                        }
+                        else
+                        {
+                            <li class="mb-2"><a class="footer-link" href="@Url.Action("Login", "Account")"><i class="fas fa-sign-in-alt mr-2"></i>Đăng nhập</a></li>
+                            <li><a class="footer-link" href="@Url.Action("Register", "Account")"><i class="fas fa-user-plus mr-2"></i>Đăng ký</a></li>
+                        }
+                    </ul>
+                </div>
+
+                <div class="col-12 col-sm-6 col-md-3 mb-4">
+                    <a class="footer-brand" href="@Url.Action("Index", "Home")" aria-label="BeeFood - về trang chủ">
+                        <img class="footer-logo" src="@Url.Content("~/Content/img/beefood-logo.png?v=20261123-1")" alt="BeeFood" />
+                    </a>
+                    <p class="text-white-50 small mt-3">Khám phá món ngon và đặt hàng từ những cửa hàng trên BeeFood.</p>
+                    <a class="footer-link small" href="@Url.Action("Products", "Home")">Khám phá thực đơn <i class="fas fa-arrow-right ml-1"></i></a>
+                </div>
+            </div>
+
+            <div class="footer-bottom text-center small text-white-50 pt-3 mt-2">
+                © @DateTime.Now.Year BeeFood · Nền tảng kết nối khách hàng với nhiều cửa hàng.
+            </div>
+        </div>
+    </footer>
+
+    @* Scripts jQuery & Bootstrap JS *@
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    @RenderSection("scripts", required: false)
+</body>
+</html>

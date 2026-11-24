@@ -1,0 +1,89 @@
+﻿@model Web_Food_App.Models.HomeIndexViewModel
+
+@{
+    ViewBag.Title = "Sản phẩm";
+    bool isFiltered = Model.CategoryId.HasValue || !string.IsNullOrEmpty(Model.Keyword);
+}
+
+@* Gợi ý cho bạn (sp_RecommendFoods) *@
+@if (Model.Recommended != null && Model.Recommended.Any())
+{
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white font-weight-bold">
+            <i class="fas fa-magic text-primary mr-2"></i> Gợi ý riêng cho bạn
+            <small class="text-muted font-weight-normal ml-1">dựa trên nhóm món bạn hay đặt</small>
+        </div>
+        <div class="list-group list-group-flush">
+            @foreach (var r in Model.Recommended)
+            {
+                <a href="@Url.Action("Details", "Food", new { id = r.FoodId })" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="font-weight-bold text-dark">@r.FoodName</div>
+                        <small class="text-muted">@r.RestaurantName &middot; @r.CategoryName</small>
+                    </div>
+                    <div class="text-right">
+                        <div class="price">@ViewHelper.Money(r.Price)</div>
+                        @if (r.ReviewCount > 0)
+                        {
+                            <small class="rating-stars"><i class="fas fa-star"></i> @string.Format("{0:0.0}", r.AvgRating)</small>
+                        }
+                    </div>
+                </a>
+            }
+        </div>
+    </div>
+}
+
+@* Tiêu đề đầu trang *@
+<div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+    <h4 class="font-weight-bold text-dark m-0">
+        <i class="fas fa-utensils text-primary mr-2"></i>
+        @(Model.CategoryTitle ?? "Tất cả món")
+    </h4>
+    <span class="badge badge-secondary py-2 px-3">Tổng: @Model.TotalItems món</span>
+</div>
+
+@if (!Model.Foods.Any())
+{
+    <div class="alert alert-info text-center py-5 shadow-sm">
+        <i class="fas fa-box-open fa-3x mb-3 text-muted"></i>
+        <h5>@(isFiltered ? "Không tìm thấy món nào phù hợp." : "Hiện chưa có món nào được bày bán.")</h5>
+        @if (isFiltered)
+        {
+            <a href="@Url.Action("Products", "Home")" class="btn btn-primary mt-2">Xem tất cả món</a>
+        }
+    </div>
+}
+else
+{
+    @* Lưới món ăn: mỗi hàng 3 món trên màn hình máy tính *@
+    <div class="row">
+        @foreach (var item in Model.Foods)
+        {
+            <div class="col-lg-4 col-md-6 mb-4">
+                @Html.Partial("_FoodCard", item)
+            </div>
+        }
+    </div>
+
+    @* Phân trang *@
+    if (Model.TotalPages > 1)
+    {
+        <nav aria-label="Phân trang">
+            <ul class="pagination justify-content-center">
+                <li class="page-item @(Model.Page <= 1 ? "disabled" : "")">
+                    <a class="page-link" href="@Url.Action("Products", "Home", new { categoryId = Model.CategoryId, restaurantId = Model.RestaurantId, keyword = Model.Keyword, page = Model.Page - 1 })">&laquo;</a>
+                </li>
+                @for (int p = 1; p <= Model.TotalPages; p++)
+                {
+                    <li class="page-item @(p == Model.Page ? "active" : "")">
+                        <a class="page-link" href="@Url.Action("Products", "Home", new { categoryId = Model.CategoryId, restaurantId = Model.RestaurantId, keyword = Model.Keyword, page = p })">@p</a>
+                    </li>
+                }
+                <li class="page-item @(Model.Page >= Model.TotalPages ? "disabled" : "")">
+                    <a class="page-link" href="@Url.Action("Products", "Home", new { categoryId = Model.CategoryId, restaurantId = Model.RestaurantId, keyword = Model.Keyword, page = Model.Page + 1 })">&raquo;</a>
+                </li>
+            </ul>
+        </nav>
+    }
+}

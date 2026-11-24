@@ -1,0 +1,74 @@
+﻿@model Web_Food_App.Models.Voucher
+
+@{
+    ViewBag.Title = "Quản trị - " + ViewBag.FormTitle;
+    bool isEdit = Model.VoucherId > 0;
+}
+
+@Html.Partial("_AdminNav")
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-white font-weight-bold">@ViewBag.FormTitle</div>
+    <div class="card-body">
+        @using (Html.BeginForm(isEdit ? "EditVoucher" : "CreateVoucher", "Admin", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            if (isEdit)
+            {
+                @Html.HiddenFor(m => m.VoucherId)
+            }
+
+            <div class="form-group">
+                <label class="font-weight-bold" for="Code">Mã voucher *</label>
+                @Html.TextBoxFor(m => m.Code, new { @class = "form-control", maxlength = 30, placeholder = "Ví dụ: FOOD10" })
+                @Html.ValidationMessageFor(m => m.Code, "", new { @class = "text-danger small" })
+            </div>
+
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label class="font-weight-bold" for="DiscountPercent">Giảm (%) *</label>
+                    @Html.TextBoxFor(m => m.DiscountPercent, new { @class = "form-control", type = "number", min = 1, max = 100 })
+                    @Html.ValidationMessageFor(m => m.DiscountPercent, "", new { @class = "text-danger small" })
+                </div>
+                <div class="form-group col-md-4">
+                    <label class="font-weight-bold" for="MaxDiscount">Giảm tối đa (đ) *</label>
+                    @Html.TextBoxFor(m => m.MaxDiscount, "{0:0}", new { @class = "form-control", type = "number", min = 0, step = 1000 })
+                    @Html.ValidationMessageFor(m => m.MaxDiscount, "", new { @class = "text-danger small" })
+                </div>
+                <div class="form-group col-md-4">
+                    <label class="font-weight-bold" for="MinOrderAmount">Đơn tối thiểu (đ) *</label>
+                    @Html.TextBoxFor(m => m.MinOrderAmount, "{0:0}", new { @class = "form-control", type = "number", min = 0, step = 1000 })
+                    @Html.ValidationMessageFor(m => m.MinOrderAmount, "", new { @class = "text-danger small" })
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label class="font-weight-bold" for="StartDate">Từ ngày *</label>
+                    @Html.TextBoxFor(m => m.StartDate, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date", required = "required" })
+                    @Html.ValidationMessageFor(m => m.StartDate, "", new { @class = "text-danger small" })
+                </div>
+                <div class="form-group col-md-4">
+                    <label class="font-weight-bold" for="EndDate">Đến hết ngày *</label>
+                    @Html.TextBoxFor(m => m.EndDate, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date", required = "required" })
+                    @Html.ValidationMessageFor(m => m.EndDate, "", new { @class = "text-danger small" })
+                </div>
+                <div class="form-group col-md-4">
+                    <label class="font-weight-bold" for="Quantity">Số lượt dùng *</label>
+                    @Html.TextBoxFor(m => m.Quantity, new { @class = "form-control", type = "number", min = 0 })
+                    @Html.ValidationMessageFor(m => m.Quantity, "", new { @class = "text-danger small" })
+                </div>
+            </div>
+
+            <div class="form-group form-check">
+                @Html.CheckBoxFor(m => m.IsActive, new { @class = "form-check-input" })
+                <label class="form-check-label" for="IsActive">Đang bật</label>
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <a href="@Url.Action("Vouchers", "Admin")" class="btn btn-outline-secondary">Hủy</a>
+                <button type="submit" class="btn btn-primary">@(isEdit ? "Lưu thay đổi" : "Thêm voucher")</button>
+            </div>
+        }
+    </div>
+</div>

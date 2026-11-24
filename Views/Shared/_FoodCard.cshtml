@@ -1,0 +1,62 @@
+﻿@model Web_Food_App.Models.FoodDetail
+
+<div class="card food-card h-100 shadow-sm border-0">
+
+    @* Ảnh món (nếu chưa có file ảnh thì hiện biểu tượng thay thế) *@
+    <a href="@Url.Action("Details", "Food", new { id = Model.FoodId })" class="d-block">
+        <div class="food-thumb">
+            <i class="fas fa-utensils food-thumb-icon"></i>
+            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+            {
+                <img src="@Url.Content(ViewHelper.ImagePath(Model.ImageUrl))" alt="@Model.FoodName" />
+            }
+        </div>
+    </a>
+
+    <div class="card-body d-flex flex-column">
+        <small class="text-muted mb-1">
+            <i class="fas fa-store mr-1"></i>@Model.RestaurantName &middot; @Model.CategoryName
+        </small>
+
+        <h6 class="card-title font-weight-bold mb-1 food-title" title="@Model.FoodName">
+            <a href="@Url.Action("Details", "Food", new { id = Model.FoodId })" class="text-dark">@Model.FoodName</a>
+        </h6>
+
+        <div class="small mb-2">
+            @if (Model.ReviewCount > 0)
+            {
+                <span class="rating-stars"><i class="fas fa-star"></i> @string.Format("{0:0.0}", Model.AvgRating)</span>
+                <span class="text-muted">(@Model.ReviewCount đánh giá)</span>
+            }
+            else
+            {
+                <span class="text-muted">Chưa có đánh giá</span>
+            }
+        </div>
+
+        <div class="mt-auto">
+            <div class="price mb-3" style="font-size: 1.2rem;">@ViewHelper.Money(Model.Price)</div>
+
+            <div class="d-flex">
+                <a href="@Url.Action("Details", "Food", new { id = Model.FoodId })" class="btn btn-outline-secondary btn-sm mr-2">
+                    <i class="fas fa-info-circle mr-1"></i> Chi tiết
+                </a>
+                @if (Model.Stock > 0)
+                {
+                    using (Html.BeginForm("Add", "Cart", FormMethod.Post, new { @class = "flex-grow-1" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.FoodId" />
+                        <button type="submit" class="btn btn-primary btn-sm btn-block">
+                            <i class="fas fa-cart-plus mr-1"></i> Thêm vào giỏ
+                        </button>
+                    }
+                }
+                else
+                {
+                    <button type="button" class="btn btn-secondary btn-sm flex-grow-1" disabled>Hết hàng</button>
+                }
+            </div>
+        </div>
+    </div>
+</div>

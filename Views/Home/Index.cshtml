@@ -1,0 +1,107 @@
+﻿@model Web_Food_App.Models.HomePageViewModel
+
+@{
+    ViewBag.Title = "Trang chủ";
+    var photoCards = Model.Restaurants.Where(r => !string.IsNullOrWhiteSpace(r.ImageUrl)).Take(4).ToList();
+}
+
+<section class="home-hero mb-5">
+    <div class="home-hero-copy">
+        <span class="home-eyebrow">Nhiều cửa hàng · Một nơi đặt món</span>
+        <h1>Món ngon ở xung quanh,<br />đặt nhanh tại BeeFood.</h1>
+        <p>Khám phá thực đơn từ những cửa hàng đang có trên BeeFood.</p>
+        <a class="btn btn-primary btn-lg" href="@Url.Action("Products", "Home")">Khám phá cửa hàng</a>
+    </div>
+    <div class="home-hero-photos" aria-label="Một số món đang có trên BeeFood">
+        @for (var i = 0; i < 4; i++)
+        {
+            var item = photoCards.Count > i ? photoCards[i] : null;
+            <div class="home-hero-photo home-hero-photo-@(i + 1)">
+                @if (item != null)
+                {
+                    <img src="@Url.Content(ViewHelper.ImagePath(item.ImageUrl))" alt="Món ăn từ @item.RestaurantName" />
+                }
+                else
+                {
+                    <span aria-hidden="true">🍽️</span>
+                }
+            </div>
+        }
+    </div>
+</section>
+
+<section class="home-restaurants" id="cua-hang">
+    <div class="home-section-heading">
+        <div>
+            <div class="home-section-kicker">ĐỐI TÁC BEEFOOD</div>
+            <h2>Cửa hàng nổi bật</h2>
+        </div>
+        <form class="home-search" action="@Url.Action("Products", "Home")" method="get">
+            <span aria-hidden="true"><i class="fas fa-search"></i></span>
+            <input type="search" name="keyword" placeholder="Tìm cửa hàng hoặc món ăn..." aria-label="Tìm cửa hàng hoặc món ăn" />
+            <button type="submit" aria-label="Tìm kiếm"><i class="fas fa-arrow-right"></i></button>
+        </form>
+    </div>
+
+    @if (Model.Categories.Any())
+    {
+        <nav class="home-category-chips" aria-label="Lọc theo nhóm món">
+            <a class="active" href="@Url.Action("Products", "Home")">Tất cả</a>
+            @foreach (var category in Model.Categories)
+            {
+                <a href="@Url.Action("Products", "Home", new { categoryId = category.CategoryId })">@category.CategoryName</a>
+            }
+        </nav>
+    }
+
+    @if (!Model.Restaurants.Any())
+    {
+        <div class="home-empty">
+            <i class="fas fa-store"></i>
+            <h3>Chưa có cửa hàng đang hoạt động</h3>
+            <p>Các cửa hàng sẽ hiện ở đây khi được thêm vào BeeFood.</p>
+            <a class="btn btn-primary" href="@Url.Action("Products", "Home")">Xem thực đơn</a>
+        </div>
+    }
+    else
+    {
+        <div class="home-restaurant-grid">
+            @foreach (var restaurant in Model.Restaurants)
+            {
+                <article class="home-restaurant-card">
+                    <a class="home-restaurant-image" href="@Url.Action("Products", "Home", new { restaurantId = restaurant.RestaurantId })">
+                        @if (!string.IsNullOrWhiteSpace(restaurant.ImageUrl))
+                        {
+                            <img src="@Url.Content(ViewHelper.ImagePath(restaurant.ImageUrl))" alt="Món ăn tại @restaurant.RestaurantName" />
+                        }
+                        else
+                        {
+                            <span aria-hidden="true"><i class="fas fa-utensils"></i></span>
+                        }
+                    </a>
+                    <div class="home-restaurant-body">
+                        <div class="home-restaurant-title">
+                            <h3>@restaurant.RestaurantName</h3>
+                            @if (restaurant.ReviewCount > 0 && restaurant.AvgRating.HasValue)
+                            {
+                                <span class="home-rating"><i class="fas fa-star"></i> @string.Format("{0:0.0}", restaurant.AvgRating.Value)</span>
+                            }
+                        </div>
+                        <div class="home-restaurant-meta">
+                            @if (!string.IsNullOrWhiteSpace(restaurant.CategoryName))
+                            {
+                                <span>@restaurant.CategoryName</span><span class="meta-dot">·</span>
+                            }
+                            <span>@restaurant.FoodCount món</span>
+                        </div>
+                        @if (!string.IsNullOrWhiteSpace(restaurant.Address))
+                        {
+                            <p class="home-restaurant-address"><i class="fas fa-map-marker-alt"></i> @restaurant.Address</p>
+                        }
+                        <a class="btn btn-primary btn-block" href="@Url.Action("Products", "Home", new { restaurantId = restaurant.RestaurantId })">Xem cửa hàng</a>
+                    </div>
+                </article>
+            }
+        </div>
+    }
+</section>

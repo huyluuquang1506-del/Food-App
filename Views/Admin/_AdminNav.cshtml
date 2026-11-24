@@ -1,0 +1,20 @@
+﻿@{
+    string action = (ViewContext.RouteData.Values["action"] as string) ?? "";
+}
+<ul class="nav nav-pills mb-4">
+    <li class="nav-item">
+        <a class="nav-link @(action == "Dashboard" ? "active bg-primary" : "")" href="@Url.Action("Dashboard", "Admin")"><i class="fas fa-chart-line mr-1"></i> Tổng quan</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(action == "Foods" || action == "CreateFood" || action == "EditFood" ? "active bg-primary" : "")" href="@Url.Action("Foods", "Admin")"><i class="fas fa-utensils mr-1"></i> Món ăn</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(action == "Orders" ? "active bg-primary" : "")" href="@Url.Action("Orders", "Admin")"><i class="fas fa-receipt mr-1"></i> Đơn hàng</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(action == "Vouchers" || action == "CreateVoucher" || action == "EditVoucher" ? "active bg-primary" : "")" href="@Url.Action("Vouchers", "Admin")"><i class="fas fa-ticket-alt mr-1"></i> Voucher</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(action == "Users" ? "active bg-primary" : "")" href="@Url.Action("Users", "Admin")"><i class="fas fa-users mr-1"></i> Người dùng</a>
+    </li>
+</ul>

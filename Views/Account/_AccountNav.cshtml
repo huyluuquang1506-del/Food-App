@@ -1,0 +1,14 @@
+﻿@{
+    string action = (ViewContext.RouteData.Values["action"] as string) ?? "";
+}
+<ul class="nav nav-pills mb-4">
+    <li class="nav-item">
+        <a class="nav-link @(action == "Profile" ? "active bg-primary" : "")" href="@Url.Action("Profile", "Account")"><i class="fas fa-user mr-1"></i> Thông tin cá nhân</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(action == "ChangePassword" ? "active bg-primary" : "")" href="@Url.Action("ChangePassword", "Account")"><i class="fas fa-key mr-1"></i> Đổi mật khẩu</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="@Url.Action("History", "Order")"><i class="fas fa-receipt mr-1"></i> Đơn hàng của tôi</a>
+    </li>
+</ul>

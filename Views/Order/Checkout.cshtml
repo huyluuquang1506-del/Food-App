@@ -1,0 +1,105 @@
+﻿@model Web_Food_App.Models.CheckoutViewModel
+
+@{
+    ViewBag.Title = "Đặt hàng";
+}
+
+<h4 class="font-weight-bold text-dark mb-4">
+    <i class="fas fa-clipboard-check text-primary mr-2"></i> Xác nhận đơn hàng
+</h4>
+
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-danger" role="alert">
+        <i class="fas fa-exclamation-circle mr-1"></i> @ViewBag.Error
+    </div>
+}
+
+<div class="row">
+    @* Thông tin giao hàng *@
+    <div class="col-lg-7 mb-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white font-weight-bold">Thông tin giao hàng và thanh toán</div>
+            <div class="card-body">
+                @using (Html.BeginForm("Checkout", "Order", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+
+                    <div class="form-group">
+                        <label class="font-weight-bold" for="shippingAddress">Địa chỉ giao hàng *</label>
+                        <input type="text" id="shippingAddress" name="shippingAddress" class="form-control" maxlength="255"
+                               value="@Model.ShippingAddress" placeholder="Số nhà, đường, quận/huyện" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label class="font-weight-bold" for="paymentMethod">Phương thức thanh toán</label>
+                        <select id="paymentMethod" name="paymentMethod" class="form-control">
+                            @foreach (var m in ViewHelper.PaymentMethods)
+                            {
+                                <option value="@m" @(Model.PaymentMethod == m ? "selected" : "")>@ViewHelper.PaymentText(m)</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="font-weight-bold" for="voucherCode">Mã giảm giá</label>
+                        <input type="text" id="voucherCode" name="voucherCode" class="form-control" maxlength="30"
+                               value="@Model.VoucherCode" placeholder="Nhập mã nếu có (ví dụ: FOOD10)" />
+
+                        @if (Model.AvailableVouchers.Any())
+                        {
+                            <small class="form-text text-muted mt-2">Mã đang có:</small>
+                            <ul class="list-unstyled small mb-0">
+                                @foreach (var v in Model.AvailableVouchers)
+                                {
+                                    <li>
+                                        <code>@v.Code</code>
+                                        giảm @v.DiscountPercent%, tối đa @ViewHelper.Money(v.MaxDiscount),
+                                        đơn từ @ViewHelper.Money(v.MinOrderAmount)
+                                    </li>
+                                }
+                            </ul>
+                        }
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="@Url.Action("Index", "Cart")" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left mr-1"></i> Quay lại giỏ hàng
+                        </a>
+                        <button type="submit" class="btn btn-success btn-lg px-4 shadow-sm">
+                            <i class="fas fa-check mr-1"></i> Đặt hàng
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    @* Tóm tắt đơn *@
+    <div class="col-lg-5 mb-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white font-weight-bold">Đơn hàng của bạn</div>
+            <ul class="list-group list-group-flush">
+                @foreach (var line in Model.Cart.Lines)
+                {
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>@line.Food.FoodName <span class="text-muted">&times; @line.Quantity</span></span>
+                        <span>@ViewHelper.Money(line.LineTotal)</span>
+                    </li>
+                }
+                <li class="list-group-item d-flex justify-content-between text-muted">
+                    <span>Tiền món</span><span>@ViewHelper.Money(Model.Cart.Subtotal)</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between text-muted">
+                    <span>Phí giao hàng</span><span>@ViewHelper.Money(Model.Cart.ShippingFee)</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <strong>Tạm tính</strong><strong class="price">@ViewHelper.Money(Model.Cart.EstimatedTotal)</strong>
+                </li>
+            </ul>
+            <div class="card-footer bg-white small text-muted">
+                Số tiền giảm của voucher sẽ được tính khi đơn được tạo.
+            </div>
+        </div>
+    </div>
+</div>

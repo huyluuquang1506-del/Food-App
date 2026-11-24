@@ -1,0 +1,72 @@
+﻿@model IEnumerable<Web_Food_App.Models.Food>
+
+@{
+    ViewBag.Title = "Quản trị - Món ăn";
+}
+
+@Html.Partial("_AdminNav")
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+    <form method="get" action="@Url.Action("Foods", "Admin")" class="form-inline mb-2 mb-md-0">
+        <input type="search" name="keyword" value="@ViewBag.Keyword" class="form-control mr-2" placeholder="Tìm theo tên món" aria-label="Tìm theo tên món" />
+        <button type="submit" class="btn btn-outline-secondary"><i class="fas fa-search"></i></button>
+    </form>
+    <a href="@Url.Action("CreateFood", "Admin")" class="btn btn-primary"><i class="fas fa-plus mr-1"></i> Thêm món</a>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="thead-light">
+                <tr>
+                    <th>#</th>
+                    <th>Tên món</th>
+                    <th>Nhóm</th>
+                    <th>Quán</th>
+                    <th class="text-right">Giá</th>
+                    <th class="text-center">Tồn kho</th>
+                    <th class="text-center">Trạng thái</th>
+                    <th style="width: 190px;"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="8" class="text-muted text-center py-4">Không có món nào.</td></tr>
+                }
+                @foreach (var f in Model)
+                {
+                    <tr class="@(f.IsActive ? "" : "text-muted")">
+                        <td>@f.FoodId</td>
+                        <td class="font-weight-bold">@f.FoodName</td>
+                        <td>@f.Category.CategoryName</td>
+                        <td>@f.Restaurant.RestaurantName</td>
+                        <td class="text-right">@ViewHelper.Money(f.Price)</td>
+                        <td class="text-center">@f.Stock</td>
+                        <td class="text-center">
+                            @if (f.IsActive)
+                            {
+                                <span class="badge badge-success">Đang bán</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-secondary">Ngừng bán</span>
+                            }
+                        </td>
+                        <td class="text-right">
+                            <a href="@Url.Action("EditFood", "Admin", new { id = f.FoodId })" class="btn btn-sm btn-outline-secondary">Sửa</a>
+                            @using (Html.BeginForm("ToggleFood", "Admin", FormMethod.Post, new { @class = "d-inline" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@f.FoodId" />
+                                <button type="submit" class="btn btn-sm @(f.IsActive ? "btn-outline-danger" : "btn-outline-success")">
+                                    @(f.IsActive ? "Ngừng bán" : "Mở bán")
+                                </button>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
