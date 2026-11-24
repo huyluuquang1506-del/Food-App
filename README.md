@@ -37,7 +37,7 @@ BeeFood an online food ordering website that allows customers to browse restaura
 - **Framework:** ASP.NET Framework
 - **ORM:** Entity Framework (Database First)
 - **Language:** C#
-- **Database:** In-memory database
+- **Database:** Microsoft SQL Server Management Studio
 - **Frontend:** Razor Views, HTML, CSS, JavaScript
 - **Backend:** LINQ and Entity Framework
 
