@@ -49,5 +49,4 @@ BeeFood is an online food ordering website built with ASP.NET MVC 5, Entity Fram
    
 - **Inspirational Websites:**
   - [beFood](https://food.be.com.vn/)
-  - [Foody.](https://www.foody.vn/ha-noi)
   - [TocoToco](https://tocotocotea.com/)
