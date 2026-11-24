@@ -1,5 +1,5 @@
 # Food-App
-BeeFood is an online food ordering website built with ASP.NET MVC 5, Entity Framework 6, and SQL Server. Customers can browse restaurants and dishes, search the menu, add food to their cart, and place orders. They can also view their order history, leave reviews, and save favorite dishes. Admins can manage dishes, orders, vouchers, and customer accounts through an admin page. 
+BeeFood an online food ordering website that allows customers to browse restaurants, explore dishes, and place food orders online. Customers can also manage their carts, track their orders, and save their favorite dishes. The website also provides an admin system for managing food items, orders, vouchers, and customer accounts.
 
 ### Project Overview
 ### Home page
