@@ -40,3 +40,14 @@ Online food delivery platform(BeeFood)
 - **Database:** In-memory database
 - **Frontend:** Razor Views, HTML, CSS, JavaScript
 - **Backend:** LINQ and Entity Framework
+
+## References
+- **Learning Resources:**
+  - YouTube
+  - Google
+  - ChatGPT
+   
+- **Inspirational Websites:**
+  - [beFood](https://food.be.com.vn/)
+  - [Foody.](https://www.foody.vn/ha-noi)
+  - [TocoToco](https://tocotocotea.com/)
