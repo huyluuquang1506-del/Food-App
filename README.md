@@ -1,7 +1,7 @@
 # Food-App
 BeeFood an online food ordering website that allows customers to browse restaurants, explore dishes, and place food orders online. Customers can also manage their carts, track their orders, and save their favorite dishes. The website also provides an admin system for managing food items, orders, vouchers, and customer accounts.
 
-### Project Overview
+### Project Preview
 ### Home page
 <img width="945" height="470" alt="Home_page" src="https://github.com/user-attachments/assets/7be4c21b-6156-44cd-a105-9463e0b92bc6" />
 
